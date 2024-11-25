@@ -2,37 +2,35 @@ import random
 
 
 class Component:
-    def __init__(self, name: str, failure_rate: float, repair_time: float) -> None:
+    def __init__(self, name: str, failure_rate: float, time_to_repair: float) -> None:
         """
         Initializes a Component with a name, failure rate, and repair time
+        :param name (str): Name of component
+        :param failure_rate: (float): (failures/time unit) higher value means that component is more likely to fail quickly
+        :param time_to_repair (float): Average time it takes to repair component can be expressed in days, hours or minutes
         """
         self.name: str = name
         self.failure_rate: float = failure_rate
-        self.repair_time: float = repair_time
-        self.is_operational: bool = True
-        self.time_until_failure: float = self.generate_time_until_failure()
-        self.time_until_repair_complete: Optional[float] = None
+        self.repair_time: float = time_to_repair
 
-    def generate_time_until_failure(self) -> float:
-        # Time until failure follows an exponential distribution
-        return random.expovariate(self.failure_rate) if self.failure_rate > 0 else float("inf")
+    def generate_failure_time(self) -> float:
+        """
+        Returns a time at which component will fail using exponential distribution
+        :return: float: point in exponential distribution
+        """
+        return random.expovariate(self.failure_rate)
 
-    def fail(self) -> None:
-        self.is_operational = False
-        self.time_until_repair_complete = self.repair_time
+    def generate_repair_time(self):
+        """
+        Returns a time it will take to repair component based on exponential distribution
+        :return: float: point in exponential distribution
+        """
+        return random.expovariate(1 / self.repair_time)
 
-    def repair(self) -> None:
-        self.is_operational = True
-        self.time_until_failure = self.generate_time_until_failure()
-        self.time_until_repair_complete = None
 
-    def update(self, delta_time: float) -> None:
-        if self.is_operational:
-            self.time_until_failure -= delta_time
-            if self.time_until_failure <= 0:
-                self.fail()
-        else:
-            if self.time_until_repair_complete is not None:
-                self.time_until_repair_complete -= delta_time
-                if self.time_until_repair_complete <= 0:
-                    self.repair()
+if __name__ == "__main__":
+    component = Component(name="test_server", failure_rate=0.01, time_to_repair=10)
+    failure_time = component.generate_failure_time()
+    repair_time = component.generate_repair_time()
+
+    print(f"failure time: {failure_time} \nrepair_time: {repair_time}")
