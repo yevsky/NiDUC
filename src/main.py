@@ -15,13 +15,15 @@ def main() -> None:
     sla_thresholds = {'availability': 0.95}
     sla = SLA(sla_level_name="Standard", thresholds=sla_thresholds)
 
-    simulation_time = 1000
-    simulation = Simulation(system, simulation_time, trials=100)
-    reliability_data = simulation.run()
+    simulation_time = 1000.0
+    num_trials = 1000
+    simulation = Simulation(system, simulation_time, num_trials)
 
-    print(f"SLA Compliance: {sla.is_sla_compliant(np.average(reliability_data))}")
+    availability = simulation.run()
 
-    draw_histogram(data=reliability_data, bins=20)
+    print(f"SLA compliant: {float(np.average(availability))} -> {sla.is_sla_compliant(float(np.average(availability)))}")
+
+    draw_histogram(data=availability, bins=50, title="Availability over multiple simulations", x_label="Availability", y_label="Frequency")
 
 
 if __name__ == "__main__":
