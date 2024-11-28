@@ -2,6 +2,7 @@ from components import Component
 from simulation import Simulation
 from system import System
 from sla import SLA
+from GUI.histograms import draw_histogram
 
 
 def main() -> None:
@@ -23,6 +24,8 @@ def main() -> None:
     print(f"Total Downtime: {downtime}")
     print(f"Availability: {availability}")
     print(f"SLA Compliance: {sla.is_sla_compliant()}")
+
+    draw_histogram(x_label="Time", y_label="Availability",x=[4,2],y=[2,4] )
 
 
 if __name__ == "__main__":

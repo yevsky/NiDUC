@@ -1,15 +1,14 @@
-from typing import List
 from components import Component
 
 
 class System:
-    def __init__(self, components: List[Component]) -> None:
+    def __init__(self, components: list[Component]) -> None:
         """
         Initialize system with given components
         :param components: List of components in system
         """
         self.components = components
-        self.failed_components: List[Component] = []
+        self.failed_components: list[Component] = []
 
     def is_operational(self) -> bool:
         """
