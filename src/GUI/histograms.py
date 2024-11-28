@@ -1,17 +1,19 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 
-def draw_histogram(x: list[float], y: list[float], title: str = "Histogram", x_label: str = "X-axis",
+def draw_histogram(data: list[float], bins: int, title: str = "Histogram", x_label: str = "X-axis",
                    y_label: str = "Y-axis") -> None:
     """
     Draws a histogram from provided data
-    :param x: x-axis values
-    :param y: y-axis values
+    :param data: data to draw on histogram
+    :param bins: number of bins
     :param title: title of the histogram
     :param x_label: x-axis label
     :param y_label: y-axis label
     """
-    plt.bar(x, y, width=0.7, color='purple', edgecolor='black')
+
+    plt.hist(data, bins=bins, color="blue", edgecolor="black", alpha=0.7)
     plt.title(title)
     plt.xlabel(x_label)
     plt.ylabel(y_label)

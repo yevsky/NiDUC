@@ -7,21 +7,11 @@ class SLA:
         """
         self.sla_level = sla_level_name
         self.thresholds = thresholds
-        self.availability = 0
-        self.downtime = 0
 
-    def calculate_availability(self, uptime: float, total_time: float) -> float:
-        """
-        Calculates availability based on uptime of the system
-        :param uptime: (float): time that system was working for
-        :param total_time: (float): time that system worked in total
-        """
-        self.availability = uptime / total_time
-        return self.availability
-
-    def is_sla_compliant(self) -> bool:
+    def is_sla_compliant(self, average_availability: float) -> bool:
         """
         Checks if system met the SLA compliance
+        :param average_availability: average availability of a system
         :return: (bool): return true if system has met SLA
         """
-        return self.availability >= self.thresholds['availability']
+        return average_availability >= self.thresholds['availability']
