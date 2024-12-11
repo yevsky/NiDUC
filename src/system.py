@@ -2,31 +2,39 @@ from components import Component
 
 
 class System:
-    def __init__(self, components: list[Component]) -> None:
+    def __init__(self, groups: list[list[Component]]) -> None:
         """
-        Initialize system with given components
-        :param components: List of components in system
+        Initialize the system with redundancy groups.
+        Each element in `groups` is a list of components that are considered redundant.
+        The system is operational as long as at least one component in each group is up.
+        :param groups: A list of lists of components representing redundancy groups.
         """
-        self.components = components
+        self.groups = groups
         self.failed_components: list[Component] = []
 
     def is_operational(self) -> bool:
         """
-        Determines if system is operational. The system is operational as long as all components are operational
-        :return: bool: is system operational
+        The system is operational if each group has at least one functioning component.
         """
-        return len(self.failed_components) == 0
+        for group in self.groups:
+            # Check if the entire group is failed
+            if all(component in self.failed_components for component in group):
+                return False
+
+        return True
 
     def fail_component(self, component: Component) -> None:
         """
         Adds component to list of failed components
         :param component: component that failed
         """
-        self.failed_components.append(component)
+        if component not in self.failed_components:
+            self.failed_components.append(component)
 
     def repair_component(self, component: Component) -> None:
         """
         Removes component from failed components list simulating that it was repaired
         :param component: component that was repaired
         """
-        self.failed_components.remove(component)
+        if component in self.failed_components:
+            self.failed_components.remove(component)

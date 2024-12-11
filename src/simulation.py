@@ -58,9 +58,12 @@ class Simulation:
         total_repair_time = 0.0
         repair_events_count = 0
 
+        # Flatten all components for event queue initialization
+        all_components = [comp for group in self.system.groups for comp in group]
+
         # Initialize the event queue with the first failure time of each component
         event_queue = []
-        for component in self.system.components:
+        for component in all_components:
             t_failure = component.generate_failure_time()
             event_queue.append((t_failure, 'failure', component))
 

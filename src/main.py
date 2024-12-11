@@ -7,10 +7,17 @@ import numpy as np
 
 
 def main() -> None:
-    component1 = Component(name="Server1", failure_rate=0.005, time_to_repair=9)
-    component2 = Component(name="Server2", failure_rate=0.004, time_to_repair=10)
+    # Primary and alternative components for group 1
+    primary1 = Component(name="Server1", failure_rate=0.005, time_to_repair=6)
+    alternative1 = Component(name="Server1_alt", failure_rate=0.006, time_to_repair=5)
 
-    system = System(components=[component1, component2])
+    # Only one component in group 2 (no redundancy here)
+    primary2 = Component(name="Server2", failure_rate=0.004, time_to_repair=4)
+
+    system = System(groups=[
+        [primary1, alternative1],
+        [primary2]
+    ])
 
     sla_thresholds = {'availability': 0.95,
                       'max_breaks': 20,
