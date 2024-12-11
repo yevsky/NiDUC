@@ -1,5 +1,6 @@
 from system import System
 
+
 class Simulation:
     def __init__(self, system: System, simulation_time: float, num_trials: int = 1000,
                  simulation_step: float = 1) -> None:
@@ -16,15 +17,30 @@ class Simulation:
         self.num_trials = num_trials
         self.availability_results = []
 
+        # Data for SLA checks
+        self.break_counts = []
+        self.max_break_times = []
+        self.average_repair_times = []
+        self.annual_maintenance_costs = []
+
     def run(self) -> list[float]:
         """
         Runs the simulation over the specified simulation time.
         :returns: list[float]: list is availability for system over specified time
         """
         for _ in range(self.num_trials):
-            self.system.failed_components = []
-            availability = self.run_single_simulation()
+            (availability,
+             total_breaks,
+             max_break_time,
+             avg_repair_time,
+             maintenance_cost) = self.run_single_simulation()
+
             self.availability_results.append(availability)
+            self.break_counts.append(total_breaks)
+            self.max_break_times.append(max_break_time)
+            self.average_repair_times.append(avg_repair_time)
+            self.annual_maintenance_costs.append(maintenance_cost)
+
         return self.availability_results
 
     def run_single_simulation(self):
@@ -34,6 +50,13 @@ class Simulation:
 
         # Initialize system state: all components are operational
         self.system.failed_components = []
+
+        # Metrics for SLA checks
+        total_breaks = 0
+        downtime_intervals = []
+        current_downtime_start = None
+        total_repair_time = 0.0
+        repair_events_count = 0
 
         # Initialize the event queue with the first failure time of each component
         event_queue = []
@@ -52,8 +75,11 @@ class Simulation:
             if event_time > self.simulation_time:
                 event_time = self.simulation_time
 
+            # Before processing the event, check if system was operational
+            was_operational = self.system.is_operational()
+
             # Update the operational time if the system was operational
-            if self.system.is_operational():
+            if was_operational:
                 operational_time = event_time - last_event_time
                 total_operational_time += operational_time
 
@@ -64,11 +90,27 @@ class Simulation:
             # Process the event
             if event_type == 'failure':
                 self.system.fail_component(component)
+                total_breaks += 1
+
+                # If the system just became non-operational, record start of downtime
+                if was_operational and not self.system.is_operational():
+                    current_downtime_start = current_time
+
                 # Schedule a repair event
-                repair_time = current_time + component.generate_repair_time()
+                r_time = component.generate_repair_time()
+                repair_time = current_time + r_time
                 event_queue.append((repair_time, 'repair', component))
             elif event_type == 'repair':
                 self.system.repair_component(component)
+                repair_events_count += 1
+                total_repair_time += (event_time - (repair_time - component.repair_time))
+
+                # If the system became operational now, record this downtime interval
+                if self.system.is_operational() and current_downtime_start is not None:
+                    downtime_length = current_time - current_downtime_start
+                    downtime_intervals.append(downtime_length)
+                    current_downtime_start = None
+
                 # Schedule the next failure event
                 next_failure_time = current_time + component.generate_failure_time()
                 event_queue.append((next_failure_time, 'failure', component))
@@ -76,11 +118,28 @@ class Simulation:
             # Re-sort the event queue
             event_queue.sort(key=lambda x: x[0])
 
-        # After the simulation ends, account for any remaining operational time
+        # After simulation ends, if system is still down, record that downtime
         if current_time < self.simulation_time and self.system.is_operational():
             operational_time = self.simulation_time - last_event_time
             total_operational_time += operational_time
+        else:
+            # If still down at the end of simulation, close off downtime interval
+            if current_downtime_start is not None:
+                downtime_length = self.simulation_time - current_downtime_start
+                downtime_intervals.append(downtime_length)
 
         # Calculate the availability
         availability = total_operational_time / self.simulation_time
-        return availability
+
+        # Determine max break time
+        max_break_time = max(downtime_intervals) if downtime_intervals else 0.0
+
+        # Average repair time
+        average_repair_time = (total_repair_time / repair_events_count) if repair_events_count > 0 else 0.0
+
+        # Compute annual maintenance cost (example: fixed overhead + cost per break)
+        fixed_annual_overhead = 5000.0
+        cost_per_break = 1000.0
+        maintenance_cost = fixed_annual_overhead + total_breaks * cost_per_break
+
+        return availability, total_breaks, max_break_time, average_repair_time, maintenance_cost
