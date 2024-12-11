@@ -6,40 +6,27 @@ from GUI.histograms import draw_histogram
 import numpy as np
 
 
-def main() -> None:
-    # Primary and alternative components for group 1
-    primary1 = Component(name="Server1", failure_rate=0.005, time_to_repair=6)
-    alternative1 = Component(name="Server1_alt", failure_rate=0.006, time_to_repair=5)
+def run_sla_simulation(system: System, sla_thresholds: dict, simulation_time=1000.0, num_trials=1000):
+    """
+    Runs the simulation for the given system and SLA thresholds.
+    Collects availability, breaks, max break time, repair times, and cost.
+    Then checks if the system meets the SLA.
+    """
+    # Create SLA object
+    sla = SLA(sla_level_name=sla_thresholds.get('name', 'SLA'), thresholds=sla_thresholds)
 
-    # Only one component in group 2 (no redundancy here)
-    primary2 = Component(name="Server2", failure_rate=0.004, time_to_repair=4)
-
-    system = System(groups=[
-        [primary1, alternative1],
-        [primary2]
-    ])
-
-    sla_thresholds = {'availability': 0.95,
-                      'max_breaks': 20,
-                      'max_break_time': 50.0,
-                      'average_repair_time': 6.0,
-                      'max_cost_per_year': 950000.0
-                      }
-    sla = SLA(sla_level_name="Standard", thresholds=sla_thresholds)
-
-    simulation_time = 1000.0
-    num_trials = 1000
+    # Run simulation
     simulation = Simulation(system, simulation_time, num_trials)
-
-    availability = simulation.run()
+    availability_list = simulation.run()
 
     # Compute averages for SLA checks
-    avg_availability = float(np.average(availability))
+    avg_availability = float(np.average(availability_list))
     avg_breaks = np.average(simulation.break_counts)
     avg_max_break_time = np.average(simulation.max_break_times)
     avg_repair_time = np.average(simulation.average_repair_times)
     avg_cost = np.average(simulation.annual_maintenance_costs)
 
+    # Check SLA compliance
     compliant = sla.is_sla_compliant(
         average_availability=avg_availability,
         total_breaks=avg_breaks,
@@ -48,15 +35,99 @@ def main() -> None:
         annual_maintenance_cost=avg_cost
     )
 
-    print(f"Average Availability: {avg_availability}")
-    print(f"Average Number of Breaks: {avg_breaks}")
-    print(f"Average Maximum Break Time: {avg_max_break_time}")
-    print(f"Average Repair Time: {avg_repair_time}")
-    print(f"Average Annual Maintenance Cost: {avg_cost}")
+    # Print results
+    print(f"\n--- {sla_thresholds['name']} SLA Results ---")
+    print(f"Average Availability: {avg_availability * 100:.2f}%")
+    print(f"Average Number of Breaks: {avg_breaks:.2f}")
+    print(f"Average Maximum Break Time: {avg_max_break_time:.2f} h")
+    print(f"Average Repair Time: {avg_repair_time:.2f} h")
+    print(f"Average Annual Maintenance Cost: {avg_cost:.2f}")
     print(f"SLA Compliant: {compliant}")
 
-    draw_histogram(data=availability, bins=50, title="Availability over multiple simulations", x_label="Availability",
-                   y_label="Frequency")
+    # Optionally draw histogram for availability distribution
+    draw_histogram(
+        data=availability_list,
+        bins=50,
+        title=f"Availability Distribution for {sla_thresholds['name']} SLA",
+        x_label="Availability",
+        y_label="Frequency"
+    )
+
+
+def main() -> None:
+    budget_sla_thresholds = {
+        'name': 'Budget',
+        'availability': 0.90,  # >90%
+        'max_breaks': 40,  # <40
+        'max_break_time': 100.0,  # <100 h
+        'average_repair_time': 12.0,  # <12 h
+        'max_cost_per_year': 500000.0  # ~500 000
+    }
+
+    standard_sla_thresholds = {
+        'name': 'Standard',
+        'availability': 0.95,  # >95%
+        'max_breaks': 20,  # <20
+        'max_break_time': 50.0,  # <50 h
+        'average_repair_time': 6.0,  # <6 h
+        'max_cost_per_year': 950000.0  # ~950 000
+    }
+
+    premium_sla_thresholds = {
+        'name': 'Premium',
+        'availability': 0.975,  # >97.5%
+        'max_breaks': 10,  # <10
+        'max_break_time': 25.0,  # <25 h
+        'average_repair_time': 3.0,  # <3 h
+        'max_cost_per_year': 1500000.0  # ~1 500 000
+    }
+
+    simulation_time = 2000.0
+    num_trials = 1000
+
+    # Define 3 different systems with different component configurations.
+    # The idea is to choose component parameters that are likely to meet each SLA.
+
+    # Budget system: Each component in its own group (no redundancy)
+    budget_components = [
+        Component(name="Budget_Server1", failure_rate=0.01, time_to_repair=10),
+        Component(name="Budget_Server2", failure_rate=0.01, time_to_repair=11),
+        Component(name="Budget_Server3", failure_rate=0.008, time_to_repair=10)
+    ]
+    budget_system = System(groups=[
+        [budget_components[0]],
+        [budget_components[1]],
+        [budget_components[2]]
+    ])
+
+    # Standard system: Each component in its own group (no redundancy)
+    standard_components = [
+        Component(name="Standard_Server1", failure_rate=0.005, time_to_repair=5),
+        Component(name="Standard_Server2", failure_rate=0.004, time_to_repair=5),
+        Component(name="Standard_Server3", failure_rate=0.004, time_to_repair=5)
+    ]
+    standard_system = System(groups=[
+        [standard_components[0]],
+        [standard_components[1]],
+        [standard_components[2]]
+    ])
+
+    # Premium system: One group with a main and alternative component, others single-component groups
+    premium_main = Component(name="Premium_Server1", failure_rate=0.001, time_to_repair=2)
+    premium_alt = Component(name="Premium_Server1_alt", failure_rate=0.001, time_to_repair=2)
+    premium_other1 = Component(name="Premium_Server2", failure_rate=0.001, time_to_repair=2)
+    premium_other2 = Component(name="Premium_Server3", failure_rate=0.001, time_to_repair=2)
+
+    premium_system = System(groups=[
+        [premium_main, premium_alt],  # Redundant group
+        [premium_other1],
+        [premium_other2]
+    ])
+
+    # Run simulations for each system
+    run_sla_simulation(budget_system, budget_sla_thresholds, simulation_time, num_trials)
+    run_sla_simulation(standard_system, standard_sla_thresholds, simulation_time, num_trials)
+    run_sla_simulation(premium_system, premium_sla_thresholds, simulation_time, num_trials)
 
 
 if __name__ == "__main__":
