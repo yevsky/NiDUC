@@ -1,6 +1,7 @@
 from system import System
 from components import Component
 
+
 class Simulation:
     def __init__(self, system: System, simulation_time: float, num_trials: int = 1000) -> None:
         """
@@ -17,10 +18,11 @@ class Simulation:
 
         # Data for SLA checks
         self.break_counts = []
+        self.total_break_times = []
         self.max_break_times = []
-        self.average_repair_times = []
+        self.revenue_punishments = []
 
-    def run(self) -> list[float]:
+    def run(self) -> tuple[list[float], list[int], list[float], list[float], list[float]]:
         """
         Runs the simulation over the specified simulation time.
         :returns: list[float]: list is availability for system over specified time
@@ -28,15 +30,17 @@ class Simulation:
         for _ in range(self.num_trials):
             (availability,
              total_breaks,
+             total_break_time,
              max_break_time,
-             avg_repair_time) = self.run_single_simulation()
+             revenue_lost,) = self.run_single_simulation()
 
             self.availability_results.append(availability)
             self.break_counts.append(total_breaks)
+            self.total_break_times.append(total_break_time)
             self.max_break_times.append(max_break_time)
-            self.average_repair_times.append(avg_repair_time)
+            self.revenue_punishments.append(revenue_lost)
 
-        return self.availability_results
+        return self.availability_results, self.break_counts, self.total_break_times, self.max_break_times, self.revenue_punishments
 
     def run_single_simulation(self):
         current_time = 0.0
@@ -50,8 +54,7 @@ class Simulation:
         total_breaks = 0
         downtime_intervals = []
         current_downtime_start: float | None = None
-        total_repair_time = 0.0
-        repair_events_count = 0
+        revenue_lost = 0.0
 
         # Flatten all components for event queue initialization
         all_components = [comp for group in self.system.groups for comp in group]
@@ -78,13 +81,12 @@ class Simulation:
             if event_type == 'failure':
                 self.handle_failure_event(component, current_time, event_queue)
                 total_breaks += 1
+                revenue_lost += component.repair_cost
                 # If the system just became non-operational, record start of downtime
                 if was_operational and not self.system.is_operational():
                     current_downtime_start = current_time
             elif event_type == 'repair':
                 self.handle_repair_event(component, current_time, event_queue)
-                repair_events_count += 1
-                total_repair_time += (event_time - (current_time - component.repair_time))
 
                 # If the system became operational now, record this downtime interval
                 if self.system.is_operational() and current_downtime_start is not None:
@@ -104,13 +106,15 @@ class Simulation:
         # Calculate the availability
         availability = total_operational_time / self.simulation_time
 
-        # Determine max break time
-        max_break_time = max(downtime_intervals) if downtime_intervals else 0.0
+        # Determine total break time of a system
+        total_break_time = sum(downtime_intervals, 0.0)
 
-        # Average repair time
-        average_repair_time = (total_repair_time / repair_events_count) if repair_events_count > 0 else 0.0
+        # Determine the longest single downtime duration
+        max_break_time = max(downtime_intervals, default=0.0)
 
-        return availability, total_breaks, max_break_time, average_repair_time
+        revenue_lost += (self.simulation_time - total_operational_time) * self.system.revenue_penalty_per_hour
+
+        return availability, total_breaks, total_break_time, max_break_time, revenue_lost
 
     @staticmethod
     def initialize_event_queue(all_components: list[Component]) -> list[tuple[float, str, Component]]:

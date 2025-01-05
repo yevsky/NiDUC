@@ -2,7 +2,7 @@ from components import Component
 
 
 class System:
-    def __init__(self, groups: list[list[Component]]) -> None:
+    def __init__(self, groups: list[list[Component]], revenue_penalty_per_hour: float) -> None:
         """
         Initialize the system with redundancy groups.
         Each element in `groups` is a list of components that are considered redundant.
@@ -10,6 +10,7 @@ class System:
         :param groups: A list of lists of components representing redundancy groups.
         """
         self.groups = groups
+        self.revenue_penalty_per_hour = revenue_penalty_per_hour
         self.failed_components: list[Component] = []
 
     def is_operational(self) -> bool:

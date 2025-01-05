@@ -2,7 +2,7 @@ import random
 
 
 class Component:
-    def __init__(self, name: str, failure_rate: float, time_to_repair: float) -> None:
+    def __init__(self, name: str, failure_rate: float, time_to_repair: float, repair_cost: float) -> None:
         """
         Initializes a Component with a name, failure rate, and repair time
         :param name (str): Name of component
@@ -12,6 +12,7 @@ class Component:
         self.name: str = name
         self.failure_rate: float = failure_rate
         self.repair_time: float = time_to_repair
+        self.repair_cost = repair_cost
 
     def generate_failure_time(self) -> float:
         """
