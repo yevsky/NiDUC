@@ -23,16 +23,12 @@ def run_sla_simulation(system: System, sla_thresholds: dict, simulation_time=100
     avg_availability = float(np.average(availability_list))
     avg_breaks = np.average(simulation.break_counts)
     avg_max_break_time = np.average(simulation.max_break_times)
-    avg_repair_time = np.average(simulation.average_repair_times)
-    avg_cost = np.average(simulation.annual_maintenance_costs)
 
     # Check SLA compliance
     compliant = sla.is_sla_compliant(
         average_availability=avg_availability,
         total_breaks=avg_breaks,
         max_break_time=avg_max_break_time,
-        average_repair_time=avg_repair_time,
-        annual_maintenance_cost=avg_cost
     )
 
     # Print results
@@ -40,8 +36,6 @@ def run_sla_simulation(system: System, sla_thresholds: dict, simulation_time=100
     print(f"Average Availability: {avg_availability * 100:.2f}%")
     print(f"Average Number of Breaks: {avg_breaks:.2f}")
     print(f"Average Maximum Break Time: {avg_max_break_time:.2f} h")
-    print(f"Average Repair Time: {avg_repair_time:.2f} h")
-    print(f"Average Annual Maintenance Cost: {avg_cost:.2f}")
     print(f"SLA Compliant: {compliant}")
 
     # Optionally draw histogram for availability distribution
@@ -61,7 +55,6 @@ def main() -> None:
         'max_breaks': 40,  # <40
         'max_break_time': 100.0,  # <100 h
         'average_repair_time': 12.0,  # <12 h
-        'max_cost_per_year': 500000.0  # ~500 000
     }
 
     standard_sla_thresholds = {
@@ -70,7 +63,6 @@ def main() -> None:
         'max_breaks': 20,  # <20
         'max_break_time': 50.0,  # <50 h
         'average_repair_time': 6.0,  # <6 h
-        'max_cost_per_year': 950000.0  # ~950 000
     }
 
     premium_sla_thresholds = {
@@ -79,7 +71,6 @@ def main() -> None:
         'max_breaks': 10,  # <10
         'max_break_time': 25.0,  # <25 h
         'average_repair_time': 3.0,  # <3 h
-        'max_cost_per_year': 1500000.0  # ~1 500 000
     }
 
     simulation_time = 2000.0
