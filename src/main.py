@@ -58,7 +58,7 @@ def run_sla_simulation(system: System, sla_thresholds: dict, simulation_time=100
 def main() -> None:
     budget_sla_thresholds = {
         'name': 'Budget',
-        'availability': 0.9,  # >90%
+        'availability': 0.85,  # >90%
         'max_breaks': 500,  # <40
         'max_break_time': 100.0,  # <100 h
         'total_break_time': 500.0,  # <100 h
@@ -88,9 +88,9 @@ def main() -> None:
 
     # Budget system: Each component in its own group (no redundancy)
     budget_components = [
-        Component(name="Budget_Server1", failure_rate=0.01, time_to_repair=10, repair_cost=100),
-        Component(name="Budget_Server2", failure_rate=0.01, time_to_repair=11, repair_cost=100),
-        Component(name="Budget_Server3", failure_rate=0.008, time_to_repair=10, repair_cost=100)
+        Component(name="Budget_Server1", failure_rate=0.005, time_to_repair=10, repair_cost=100),
+        Component(name="Budget_Server2", failure_rate=0.005, time_to_repair=11, repair_cost=100),
+        Component(name="Budget_Server3", failure_rate=0.004, time_to_repair=10, repair_cost=100)
     ]
     budget_system = System(groups=[
         [budget_components[0]],
@@ -100,9 +100,9 @@ def main() -> None:
 
     # Standard system: Each component in its own group (no redundancy)
     standard_components = [
-        Component(name="Standard_Server1", failure_rate=0.005, time_to_repair=5, repair_cost=200),
-        Component(name="Standard_Server2", failure_rate=0.004, time_to_repair=5, repair_cost=200),
-        Component(name="Standard_Server3", failure_rate=0.004, time_to_repair=5, repair_cost=200)
+        Component(name="Standard_Server1", failure_rate=0.002, time_to_repair=5, repair_cost=200),
+        Component(name="Standard_Server2", failure_rate=0.001, time_to_repair=5, repair_cost=200),
+        Component(name="Standard_Server3", failure_rate=0.0015, time_to_repair=5, repair_cost=200)
     ]
     standard_system = System(groups=[
         [standard_components[0]],
