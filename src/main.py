@@ -58,16 +58,17 @@ def run_sla_simulation(system: System, sla_thresholds: dict, simulation_time=100
 def main() -> None:
     budget_sla_thresholds = {
         'name': 'Budget',
-        'availability': 0.90,  # >90%
+        'availability': 0.9,  # >90%
         'max_breaks': 500,  # <40
-        'total_break_time': 100.0,  # <100 h
+        'max_break_time': 100.0,  # <100 h
+        'total_break_time': 500.0,  # <100 h
     }
 
     standard_sla_thresholds = {
         'name': 'Standard',
         'availability': 0.95,  # >95%
         'max_breaks': 20,  # <20
-        'max_break_time': 150,  # <50 h
+        'max_break_time': 50.0,  # <50 h
         'total_break_time': 50.0,  # <50 h
     }
 

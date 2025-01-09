@@ -25,7 +25,7 @@ class SLA:
             return False
 
         # Check total break time
-        if 'total_break_time' in self.thresholds and total_break_time > self.thresholds['max_break_time']:
+        if 'total_break_time' in self.thresholds and total_break_time > self.thresholds['total_break_time']:
             return False
 
         # Check maximum break time
