@@ -9,11 +9,21 @@ import numpy as np
 
 
 def load_sla_config(config_file):
+    """
+    Loads the SLA configuration from a JSON file.
+    :param config_file: path to the SLA configuration file
+    :return: a dictionary containing the SLA configuration
+    """
     with open(config_file, 'r') as file:
         return json.load(file)
 
 
 def create_system_from_config(config):
+    """
+    Creates a system object based on the provided configuration.
+    :param config: a dictionary containing system configuration including components and penalty rate
+    :return: a System object with initialized components
+    """
     components = [
         [Component(name=c["name"], failure_rate=c["failure_rate"], time_to_repair=c["time_to_repair"], repair_cost=c["repair_cost"]) for c in group]
         for group in config["components"]
@@ -22,6 +32,14 @@ def create_system_from_config(config):
 
 
 def run_sla_simulation(system: System, sla_thresholds: dict, simulation_time=1000.0, num_trials=1000):
+    """
+    Runs the SLA simulation for the provided system based on given SLA thresholds.
+    :param system: the System object representing the infrastructure to simulate
+    :param sla_thresholds: the SLA thresholds that the system is expected to meet
+    :param simulation_time: total time for the simulation in hours (default 1000.0)
+    :param num_trials: number of simulation trials to run (default 1000)
+    :return: average values for breaks, break time, max break time, and revenue punishment
+    """
     sla = SLA(sla_level_name=sla_thresholds.get('name', 'SLA'), thresholds=sla_thresholds)
     simulation = Simulation(system, simulation_time, num_trials)
     availability_list, break_counts, total_break_time, max_break_time, revenue_punishments = simulation.run()
@@ -59,6 +77,10 @@ def run_sla_simulation(system: System, sla_thresholds: dict, simulation_time=100
 
 
 def main():
+    """
+    Main function that loads the SLA configuration, runs simulations for different system configurations,
+    and visualizes the results.
+    """
     sla_config = load_sla_config('sla_config.json')
     simulation_time = 2000.0
     num_trials = 1000

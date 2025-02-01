@@ -9,7 +9,6 @@ class Simulation:
         :param system: System to simulate
         :param simulation_time: Duration of each simulation run
         :param num_trials: number of trials simulation will run for. Default is 1000
-        :param simulation_step: Step of simulation. Default value is 1
         """
         self.system = system
         self.simulation_time = simulation_time
