@@ -1,5 +1,6 @@
 from components import Component
 from simulation import Simulation
+from src.GUI.histograms import draw_sla_histogram
 from system import System
 from sla import SLA
 from GUI.histograms import draw_histogram
@@ -45,7 +46,6 @@ def run_sla_simulation(system: System, sla_thresholds: dict, simulation_time=100
     print(f"Average Revenue Punishment: {avg_revenue_punishment:.2f}zł")
     print(f"SLA Compliant: {compliant}")
 
-    # Optionally draw histogram for availability distribution
     draw_histogram(
         data=availability_list,
         bins=50,
@@ -53,6 +53,8 @@ def run_sla_simulation(system: System, sla_thresholds: dict, simulation_time=100
         x_label="Availability",
         y_label="Frequency"
     )
+
+    return avg_breaks, avg_total_break_time, avg_max_break_time, avg_revenue_punishment
 
 
 def main() -> None:
@@ -123,9 +125,50 @@ def main() -> None:
     ], revenue_penalty_per_hour=1500)
 
     # Run simulations for each system
-    run_sla_simulation(budget_system, budget_sla_thresholds, simulation_time, num_trials)
-    run_sla_simulation(standard_system, standard_sla_thresholds, simulation_time, num_trials)
-    run_sla_simulation(premium_system, premium_sla_thresholds, simulation_time, num_trials)
+    avg_breaks_budget, avg_total_break_time_budget, avg_max_break_time_budget, avg_revenue_punishment_budget = run_sla_simulation(budget_system, budget_sla_thresholds, simulation_time, num_trials)
+    avg_breaks_standard, avg_total_break_time_standard, avg_max_break_time_standard, avg_revenue_punishment_standard = run_sla_simulation(standard_system, standard_sla_thresholds, simulation_time, num_trials)
+    avg_breaks_premium, avg_total_break_time_premium, avg_max_break_time_premium, avg_revenue_punishment_premium = run_sla_simulation(premium_system, premium_sla_thresholds, simulation_time, num_trials)
+
+    avg_breaks: list[float] = [avg_breaks_budget, avg_breaks_standard, avg_breaks_premium]
+    avg_total_break_time: list[float] = [avg_total_break_time_budget, avg_total_break_time_standard, avg_total_break_time_premium]
+    avg_max_break_time: list[float] = [avg_max_break_time_budget, avg_max_break_time_standard, avg_max_break_time_premium]
+    avg_revenue_punishment: list[float] = [avg_revenue_punishment_budget, avg_revenue_punishment_standard, avg_revenue_punishment_premium]
+
+    draw_sla_histogram(
+        sla_names=['Budget', 'Standard', 'Premium'],
+        values=avg_breaks,
+        title='Average Number of Breaks',
+        x_label='SLA Level',
+        y_label='Average Number of Breaks',
+        color='red'
+    )
+
+    draw_sla_histogram(
+        sla_names=['Budget', 'Standard', 'Premium'],
+        values=avg_total_break_time,
+        title='Average Total Break Time',
+        x_label='SLA Level',
+        y_label='Average Total Break Time',
+        color='green'
+    )
+
+    draw_sla_histogram(
+        sla_names=['Budget', 'Standard', 'Premium'],
+        values=avg_max_break_time,
+        title='Average Max Break Time',
+        x_label='SLA Level',
+        y_label='Average Max Break Time',
+        color='magenta'
+    )
+
+    draw_sla_histogram(
+        sla_names=['Budget', 'Standard', 'Premium'],
+        values=avg_revenue_punishment,
+        title='Average Revenue Punishment',
+        x_label='SLA Level',
+        y_label='Average Revenue Punishment',
+        color='purple'
+    )
 
 
 if __name__ == "__main__":
