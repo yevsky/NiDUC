@@ -1,0 +1,23 @@
+{
+    "budget": {
+        "name": "Budget",
+        "availability": 0.9,
+        "max_breaks": 500,
+        "max_break_time": 100.0,
+        "total_break_time": 500.0
+    },
+    "standard": {
+        "name": "Standard",
+        "availability": 0.95,
+        "max_breaks": 20,
+        "max_break_time": 50.0,
+        "total_break_time": 50.0
+    },
+    "premium": {
+        "name": "Premium",
+        "availability": 0.975,
+        "max_breaks": 10,
+        "max_break_time": 25.0,
+        "total_break_time": 25.0
+    }
+}
