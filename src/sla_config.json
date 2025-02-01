@@ -1,23 +1,110 @@
 {
-    "budget": {
-        "name": "Budget",
-        "availability": 0.9,
-        "max_breaks": 500,
-        "max_break_time": 100.0,
-        "total_break_time": 500.0
-    },
-    "standard": {
-        "name": "Standard",
-        "availability": 0.95,
-        "max_breaks": 20,
-        "max_break_time": 50.0,
-        "total_break_time": 50.0
-    },
-    "premium": {
-        "name": "Premium",
-        "availability": 0.975,
-        "max_breaks": 10,
-        "max_break_time": 25.0,
-        "total_break_time": 25.0
-    }
+  "budget": {
+    "name": "Budget",
+    "availability": 0.9,
+    "max_breaks": 500,
+    "max_break_time": 100.0,
+    "total_break_time": 500.0,
+    "components": [
+      [
+        {
+          "name": "Budget_Disc1",
+          "failure_rate": 0.01,
+          "time_to_repair": 10,
+          "repair_cost": 100
+        }
+      ],
+      [
+        {
+          "name": "Budget_Disc2",
+          "failure_rate": 0.01,
+          "time_to_repair": 11,
+          "repair_cost": 100
+        }
+      ],
+      [
+        {
+          "name": "Budget_Disc3",
+          "failure_rate": 0.008,
+          "time_to_repair": 10,
+          "repair_cost": 100
+        }
+      ]
+    ],
+    "revenue_penalty_per_hour": 500
+  },
+  "standard": {
+    "name": "Standard",
+    "availability": 0.95,
+    "max_breaks": 20,
+    "max_break_time": 50.0,
+    "total_break_time": 50.0,
+    "components": [
+      [
+        {
+          "name": "Standard_Disc1",
+          "failure_rate": 0.005,
+          "time_to_repair": 5,
+          "repair_cost": 200
+        }
+      ],
+      [
+        {
+          "name": "Standard_Disc2",
+          "failure_rate": 0.004,
+          "time_to_repair": 5,
+          "repair_cost": 200
+        }
+      ],
+      [
+        {
+          "name": "Standard_Disc3",
+          "failure_rate": 0.004,
+          "time_to_repair": 5,
+          "repair_cost": 200
+        }
+      ]
+    ],
+    "revenue_penalty_per_hour": 1000
+  },
+  "premium": {
+    "name": "Premium",
+    "availability": 0.975,
+    "max_breaks": 10,
+    "max_break_time": 25.0,
+    "total_break_time": 25.0,
+    "components": [
+      [
+        {
+          "name": "Premium_Disc1",
+          "failure_rate": 0.001,
+          "time_to_repair": 2,
+          "repair_cost": 300
+        },
+        {
+          "name": "Premium_Disc1_alt",
+          "failure_rate": 0.001,
+          "time_to_repair": 2,
+          "repair_cost": 300
+        }
+      ],
+      [
+        {
+          "name": "Premium_Disc2",
+          "failure_rate": 0.001,
+          "time_to_repair": 2,
+          "repair_cost": 300
+        }
+      ],
+      [
+        {
+          "name": "Premium_Disc3",
+          "failure_rate": 0.001,
+          "time_to_repair": 2,
+          "repair_cost": 300
+        }
+      ]
+    ],
+    "revenue_penalty_per_hour": 1500
+  }
 }

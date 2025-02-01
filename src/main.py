@@ -13,6 +13,14 @@ def load_sla_config(config_file):
         return json.load(file)
 
 
+def create_system_from_config(config):
+    components = [
+        [Component(name=c["name"], failure_rate=c["failure_rate"], time_to_repair=c["time_to_repair"], repair_cost=c["repair_cost"]) for c in group]
+        for group in config["components"]
+    ]
+    return System(groups=components, revenue_penalty_per_hour=config["revenue_penalty_per_hour"])
+
+
 def run_sla_simulation(system: System, sla_thresholds: dict, simulation_time=1000.0, num_trials=1000):
     sla = SLA(sla_level_name=sla_thresholds.get('name', 'SLA'), thresholds=sla_thresholds)
     simulation = Simulation(system, simulation_time, num_trials)
@@ -51,32 +59,19 @@ def run_sla_simulation(system: System, sla_thresholds: dict, simulation_time=100
 
 
 def main():
-    sla_thresholds = load_sla_config('sla_config.json')
+    sla_config = load_sla_config('sla_config.json')
     simulation_time = 2000.0
     num_trials = 1000
 
     systems = {
-        "Budget": System(
-            groups=[[Component(name="Budget_Server1", failure_rate=0.01, time_to_repair=10, repair_cost=100)],
-                    [Component(name="Budget_Server2", failure_rate=0.01, time_to_repair=11, repair_cost=100)],
-                    [Component(name="Budget_Server3", failure_rate=0.008, time_to_repair=10, repair_cost=100)]],
-            revenue_penalty_per_hour=500),
-        "Standard": System(
-            groups=[[Component(name="Standard_Server1", failure_rate=0.005, time_to_repair=5, repair_cost=200)],
-                    [Component(name="Standard_Server2", failure_rate=0.004, time_to_repair=5, repair_cost=200)],
-                    [Component(name="Standard_Server3", failure_rate=0.004, time_to_repair=5, repair_cost=200)]],
-            revenue_penalty_per_hour=1000),
-        "Premium": System(
-            groups=[[Component(name="Premium_Server1", failure_rate=0.001, time_to_repair=2, repair_cost=300),
-                     Component(name="Premium_Server1_alt", failure_rate=0.001, time_to_repair=2, repair_cost=300)],
-                    [Component(name="Premium_Server2", failure_rate=0.001, time_to_repair=2, repair_cost=300)],
-                    [Component(name="Premium_Server3", failure_rate=0.001, time_to_repair=2, repair_cost=300)]],
-            revenue_penalty_per_hour=1500)
+        "Budget": create_system_from_config(sla_config["budget"]),
+        "Standard": create_system_from_config(sla_config["standard"]),
+        "Premium": create_system_from_config(sla_config["premium"])
     }
 
     results = {}
     for sla_name, system in systems.items():
-        results[sla_name] = run_sla_simulation(system, sla_thresholds[sla_name.lower()], simulation_time, num_trials)
+        results[sla_name] = run_sla_simulation(system, sla_config[sla_name.lower()], simulation_time, num_trials)
 
     metrics = ["Average Number of Breaks", "Average Total Break Time", "Average Max Break Time",
                "Average Revenue Punishment"]
