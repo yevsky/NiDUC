@@ -88,9 +88,9 @@ def main() -> None:
 
     # Budget system: Each component in its own group (no redundancy)
     budget_components = [
-        Component(name="Budget_Server1", failure_rate=0.005, time_to_repair=10, repair_cost=100),
-        Component(name="Budget_Server2", failure_rate=0.005, time_to_repair=11, repair_cost=100),
-        Component(name="Budget_Server3", failure_rate=0.004, time_to_repair=10, repair_cost=100)
+        Component(name="Budget_Server1", failure_rate=0.003, time_to_repair=10, repair_cost=100),
+        Component(name="Budget_Server2", failure_rate=0.003, time_to_repair=11, repair_cost=100),
+        Component(name="Budget_Server3", failure_rate=0.003, time_to_repair=10, repair_cost=100)
     ]
     budget_system = System(groups=[
         [budget_components[0]],
