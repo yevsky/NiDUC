@@ -3,12 +3,12 @@ from components import Component
 
 
 class Simulation:
-    def __init__(self, system: System, simulation_time: float, num_trials: int = 1000) -> None:
+    def __init__(self, system: System, simulation_time: float, num_trials: int = 365) -> None:
         """
         Initializes the simulation.
         :param system: System to simulate
         :param simulation_time: Duration of each simulation run
-        :param num_trials: number of trials simulation will run for. Default is 1000
+        :param num_trials: number of trials simulation will run for. Default is 365
         """
         self.system = system
         self.simulation_time = simulation_time

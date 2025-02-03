@@ -31,12 +31,12 @@ def create_system_from_config(config):
     return System(groups=components, revenue_penalty_per_hour=config["revenue_penalty_per_hour"])
 
 
-def run_sla_simulation(system: System, sla_thresholds: dict, simulation_time=1000.0, num_trials=1000):
+def run_sla_simulation(system: System, sla_thresholds: dict, simulation_time=24.0, num_trials=1000):
     """
     Runs the SLA simulation for the provided system based on given SLA thresholds.
     :param system: the System object representing the infrastructure to simulate
     :param sla_thresholds: the SLA thresholds that the system is expected to meet
-    :param simulation_time: total time for the simulation in hours (default 1000.0)
+    :param simulation_time: total time for the simulation in hours (default 24.0)
     :param num_trials: number of simulation trials to run (default 1000)
     :return: average values for breaks, break time, max break time, and revenue punishment
     """
